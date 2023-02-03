@@ -18,41 +18,26 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
 <!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
-    <!-- == PACKAGE SPECIFIC SECTION == -->
-    <!-- This section is about this package, although id and version have ties back to the software -->
-    <!-- id is lowercase and if you want a good separator for words, use '-', not '.'. Dots are only acceptable as suffixes for certain types of packages, e.g. .install, .portable, .extension, .template -->
-    <!-- If the software is cross-platform, attempt to use the same id as the debian/rpm package(s) if possible. -->
     <id>stackql</id>
-    <!-- version should MATCH as closely as possible with the underlying software -->
-    <!-- Is the version a prerelease of a version? https://docs.nuget.org/create/versioning#creating-prerelease-packages -->
-    <!-- Note that unstable versions like 0.0.1 can be considered a released version, but it's possible that one can release a 0.0.1-beta before you release a 0.0.1 version. If the version number is final, that is considered a released version and not a prerelease. -->
     <version>0.3.265</version>
-    <!-- <packageSourceUrl>Where is this Chocolatey package located (think GitHub)? packageSourceUrl is highly recommended for the community feed</packageSourceUrl>-->
-    <!-- owners is a poor name for maintainers of the package. It sticks around by this name for compatibility reasons. It basically means you. -->
+    <packageSourceUrl>https://github.com/stackql/chocolatey-install</packageSourceUrl>
     <!--<owners>__REPLACE_YOUR_NAME__</owners>-->
-    <!-- ============================== -->
-
-    <!-- == SOFTWARE SPECIFIC SECTION == -->
-    <!-- This section is about the software itself -->
     <title>stackql (Install)</title>
     <authors>StackQL Studios</authors>
-    <!-- projectUrl is required for the community feed -->
     <projectUrl>https://stackql.io/</projectUrl>
     <iconUrl>https://stackql.io/android-chrome-192x192.png</iconUrl>
     <!-- <copyright>Year Software Vendor</copyright> -->
-    <!-- If there is a license Url available, it is required for the community feed -->
     <licenseUrl>https://github.com/stackql/stackql/blob/main/LICENSE</licenseUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>-->
-    <projectSourceUrl>https://github.com/stackql/chocolatey-install</projectSourceUrl>
-    <!--<docsUrl>At what url are the software docs located?</docsUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/stackql/stackql</projectSourceUrl>
+    <docsUrl>https://stackql.io/docs</docsUrl>
     <!--<mailingListUrl></mailingListUrl>-->
-    <!--<bugTrackerUrl></bugTrackerUrl>-->
+    <bugTrackerUrl>https://github.com/stackql/stackql/issues</bugTrackerUrl>
     <tags>stackql cspm</tags>
     <summary>StackQL</summary>
     <description>StackQL enables you to query and interact with cloud and SaaS resources using SQL</description>
     <!-- <releaseNotes>__REPLACE_OR_REMOVE__MarkDown_Okay</releaseNotes> -->
     <!-- =============================== -->      
-
     <!-- Specifying dependencies and version ranges? https://docs.nuget.org/create/versioning#specifying-version-ranges-in-.nuspec-files -->
     <!--<dependencies>
       <dependency id="" version="__MINIMUM_VERSION__" />
@@ -67,7 +52,6 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
          - You want to use Get-PackageParameters and on less than 0.11.0
          - You want to take advantage of other functions in the core community maintainer's team extension package
     -->
-
     <!--<provides>NOT YET IMPLEMENTED</provides>-->
     <!--<conflicts>NOT YET IMPLEMENTED</conflicts>-->
     <!--<replaces>NOT YET IMPLEMENTED</replaces>-->

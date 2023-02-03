@@ -1,6 +1,7 @@
 ﻿
 ```
 choco new stackql silentargs="'/passive /l* stackql.log'" url="'https://releases.stackql.io/stackql/latest/stackql_windows_amd64.msi'"
+cd stackql
 choco pack
 choco install stackql --source . -y
 choco push stackql.0.3.265.nupkg --source https://push.chocolatey.org/
