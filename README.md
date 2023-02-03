@@ -1,0 +1,1 @@
+# chocolatey install for stackql
