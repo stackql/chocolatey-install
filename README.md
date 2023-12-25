@@ -2,6 +2,14 @@
 
 Creates a chocolatey package for stackql
 
+## Update checksum in `chocolateyinstall.ps1`
+
+run the following command in powershell from the root of the repository:
+
+```powershell
+.\update_checksum.ps1
+```
+
 ## Bump the version
 
 To bump the version, update the `version` and `releaseNotes` fields in `stackql/stackql.nuspec`.
