@@ -29,7 +29,6 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
     <iconUrl>https://rawcdn.githack.com/stackql/stackql.io/c58a82edd5c42244866e01887cc112a2c275a08b/static/android-chrome-192x192.png</iconUrl>
     <copyright>2023 StackQL Studios</copyright>
     <licenseUrl>https://github.com/stackql/stackql/blob/main/LICENSE</licenseUrl>
-    <owners>stackql</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/stackql/stackql</projectSourceUrl>
     <docsUrl>https://stackql.io/docs</docsUrl>
