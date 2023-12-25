@@ -1,2 +1,9 @@
 apikey
+
+# Ignore .nupkg files
+*.nupkg
+
+# Other ignores (add as needed)
+# e.g., logs, build artifacts, etc.
 *.log
+/build/

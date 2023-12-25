@@ -19,13 +19,13 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>stackql</id>
-    <version>0.3.265</version>
+    <version>0.5.509</version>
     <packageSourceUrl>https://github.com/stackql/chocolatey-install</packageSourceUrl>
-    <!--<owners>__REPLACE_YOUR_NAME__</owners>-->
+    <owners>stackql</owners>
     <title>stackql (Install)</title>
-    <authors>StackQL Studios</authors>
+    <authors>stackql</authors>
     <projectUrl>https://stackql.io/</projectUrl>
-    <iconUrl>https://stackql.io/android-chrome-192x192.png</iconUrl>
+    <iconUrl>https://rawcdn.githack.com/stackql/stackql.io/c58a82edd5c42244866e01887cc112a2c275a08b/static/android-chrome-192x192.png</iconUrl>
     <!-- <copyright>Year Software Vendor</copyright> -->
     <licenseUrl>https://github.com/stackql/stackql/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -34,8 +34,8 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/stackql/stackql/issues</bugTrackerUrl>
     <tags>stackql cspm</tags>
-    <summary>StackQL</summary>
-    <description>StackQL enables you to query and interact with cloud and SaaS resources using SQL</description>
+    <summary>Query and interact with cloud and SaaS resources using SQL</summary>
+    <description>StackQL is a multi-cloud XOps development tool that enables you to query and interact with cloud and SaaS resources using SQL.  StackQL can be used for compliance, assurance, IaC, SysOps and more.</description>
     <!-- <releaseNotes>__REPLACE_OR_REMOVE__MarkDown_Okay</releaseNotes> -->
     <!-- =============================== -->      
     <!-- Specifying dependencies and version ranges? https://docs.nuget.org/create/versioning#specifying-version-ranges-in-.nuspec-files -->

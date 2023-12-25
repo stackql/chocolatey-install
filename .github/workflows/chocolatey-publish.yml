@@ -1,0 +1,30 @@
+jobs:
+  deploy:
+    runs-on: windows-latest
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Extract Version from .nuspec
+      id: set_version
+      run: |
+        $xml = [xml](Get-Content stackql/stackql.nuspec)
+        $version = $xml.package.metadata.version
+        echo "::set-output name=version::$version"
+
+    - name: Create Chocolatey Package
+      run: |
+        cd stackql
+        choco pack
+
+    - name: Install and Test Chocolatey Package
+      run: choco install stackql --source . -y
+
+    - name: Push Package to Chocolatey
+      run: |
+        choco push stackql.${{ steps.set_version.outputs.version }}.nupkg --source https://push.chocolatey.org/
+      env:
+        CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
