@@ -1,7 +1,4 @@
-﻿
-
-
-$ErrorActionPreference = 'Stop';
+﻿$ErrorActionPreference = 'Stop';
 $packageArgs = @{
   packageName   = $env:ChocolateyPackageName
   softwareName  = 'stackql*'
@@ -9,21 +6,16 @@ $packageArgs = @{
   silentArgs    = "/qn /norestart"
   validExitCodes= @(0, 3010, 1605, 1614, 1641)
 }
-
 $uninstalled = $false
 [array]$key = Get-UninstallRegistryKey -SoftwareName $packageArgs['softwareName']
-
 if ($key.Count -eq 1) {
   $key | % { 
     $packageArgs['file'] = "$($_.UninstallString)"
-    
     if ($packageArgs['fileType'] -eq 'MSI') {
       $packageArgs['silentArgs'] = "$($_.PSChildName) $($packageArgs['silentArgs'])"
-      
       $packageArgs['file'] = ''
     } else {
     }
-
     Uninstall-ChocolateyPackage @packageArgs
   }
 } elseif ($key.Count -eq 0) {
@@ -34,5 +26,3 @@ if ($key.Count -eq 1) {
   Write-Warning "Please alert package maintainer the following keys were matched:"
   $key | % {Write-Warning "- $($_.DisplayName)"}
 }
-
-
