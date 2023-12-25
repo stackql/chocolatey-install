@@ -7,7 +7,7 @@ $tempFile = Join-Path $env:TEMP 'stackql.msi'
 Invoke-WebRequest -Uri $url64 -OutFile $tempFile
 
 # Calculate checksum
-$checksum64 = Get-FileHash -Path $tempFile -Algorithm SHA256
+$checksum64 = (certutil -hashfile $tempFile SHA256)[1] -replace " ", ""
 Remove-Item $tempFile -Force
 
 $packageArgs = @{
