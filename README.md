@@ -4,13 +4,14 @@ Creates a chocolatey package for stackql
 
 ## Bump the version
 
-To bump the version, update the `version` field in `stackql/stackql.nuspec` to the new version number.
+To bump the version, update the `version` and `releaseNotes` fields in `stackql/stackql.nuspec`.
 
 ```xml
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>stackql</id>
     <version>0.5.509</version>
+    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.5.509</releaseNotes>
     ...
 ```
 
