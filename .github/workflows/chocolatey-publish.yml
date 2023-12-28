@@ -31,7 +31,7 @@ jobs:
 
     - name: Push Package to Chocolatey
       run: |
-        choco push stackql/stackql.$env:VERSION.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+        choco push "stackql/stackql.$env:VERSION.nupkg" --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
       env:
         CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
   
