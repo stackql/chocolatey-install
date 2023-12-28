@@ -13,18 +13,33 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
+    # - name: Extract Version from .nuspec
+    #   id: set_version
+    #   run: |
+    #     $xml = [xml](Get-Content stackql/stackql.nuspec)
+    #     $version = $xml.package.metadata.version
+    #     echo "VERSION=$version" >> $GITHUB_ENV
+
     - name: Extract Version from .nuspec
-      id: set_version
       run: |
         $xml = [xml](Get-Content stackql/stackql.nuspec)
         $version = $xml.package.metadata.version
+        echo "Extracted version: $version"
         echo "VERSION=$version" >> $GITHUB_ENV
+      shell: pwsh
+
+    # - name: Create Chocolatey Package
+    #   run: |
+    #     echo "creating package for version $env:VERSION"
+    #     cd stackql
+    #     choco pack
 
     - name: Create Chocolatey Package
       run: |
         echo "creating package for version $env:VERSION"
         cd stackql
         choco pack
+      shell: pwsh
 
     - name: Install and Test Chocolatey Package
       run: choco install stackql --source . -y
