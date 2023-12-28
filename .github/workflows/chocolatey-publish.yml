@@ -18,7 +18,7 @@ jobs:
       run: |
         $xml = [xml](Get-Content stackql/stackql.nuspec)
         $version = $xml.package.metadata.version
-        echo "::set-output name=version::$version"
+        echo "VERSION=$version" >> $GITHUB_ENV
 
     - name: Create Chocolatey Package
       run: |
@@ -30,7 +30,7 @@ jobs:
 
     - name: Push Package to Chocolatey
       run: |
-        choco push stackql/stackql.${{ steps.set_version.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+        choco push stackql/stackql.$env:VERSION.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
       env:
         CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
   
