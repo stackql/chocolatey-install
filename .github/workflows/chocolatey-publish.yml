@@ -22,6 +22,7 @@ jobs:
 
     - name: Create Chocolatey Package
       run: |
+        echo "creating package for version $env:VERSION"
         cd stackql
         choco pack
 
