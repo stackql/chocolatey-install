@@ -22,18 +22,16 @@ jobs:
 
     - name: Create Chocolatey Package
       run: |
-        echo "creating package for version $VERSION"
+        echo "creating package for version ${{ env.VERSION }}"
         cd stackql
         choco pack
-      env:
-        VERSION: ${{ env.VERSION }}
 
     - name: Install and Test Chocolatey Package
       run: choco install stackql --source . -y
 
     - name: Push Package to Chocolatey
       run: |
-        choco push "stackql/stackql.$env:VERSION.nupkg" --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+        choco push "stackql/stackql.${{ env.VERSION }}.nupkg" --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
       env:
         CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
   
