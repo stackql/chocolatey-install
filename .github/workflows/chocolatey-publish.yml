@@ -18,7 +18,7 @@ jobs:
         $xml = [xml](Get-Content stackql/stackql.nuspec)
         $version = $xml.package.metadata.version
         echo "Extracted version: $version"
-        echo "VERSION=$version" >> $GITHUB_ENV
+        echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV
 
     - name: Create Chocolatey Package
       run: |
