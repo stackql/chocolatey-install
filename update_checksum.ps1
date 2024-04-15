@@ -8,6 +8,11 @@ $installScriptPath = 'stackql\tools\chocolateyinstall.ps1'
 # Download the MSI file
 Invoke-WebRequest -Uri $msiUrl -OutFile $msiTempPath
 
+# Display the created date of the downloaded MSI file
+$msiFileInfo = Get-Item $msiTempPath
+$msiCreationTime = $msiFileInfo.CreationTime
+Write-Host "The creation date of the downloaded MSI file is: $msiCreationTime"
+
 # Calculate the checksum
 $checksum = (certutil -hashfile $msiTempPath SHA256)[1] -replace " ", ""
 
