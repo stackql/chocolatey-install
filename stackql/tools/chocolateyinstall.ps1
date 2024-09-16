@@ -8,13 +8,14 @@ $packageArgs = @{
     fileType       = 'MSI'
     url64bit       = $url64
     softwareName   = 'stackql*'
-    checksum64     = 'a6f049897033dcf2e2c9492552c8c9cdb15b39db277e56e7d6cba0b191f2e412'
+    checksum64     = '59e038963775fd074f5e7280ffd702eca254f3626539432cde7b1ce9c715a4d0'
     checksumType64 = 'sha256'
     silentArgs     = "/passive /l* stackql.log"
     validExitCodes = @(0, 3010, 1641)
 }
 
 Install-ChocolateyPackage @packageArgs
+
 
 
 
