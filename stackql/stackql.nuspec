@@ -19,8 +19,8 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>stackql</id>
-    <version>0.8.175</version>
-    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.8.175</releaseNotes>
+    <version>0.9.250</version>
+    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.9.250</releaseNotes>
     <packageSourceUrl>https://github.com/stackql/chocolatey-install</packageSourceUrl>
     <owners>stackql</owners>
     <title>stackql (Install)</title>
