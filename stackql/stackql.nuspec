@@ -19,15 +19,15 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>stackql</id>
-    <version>0.10.383</version>
-    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.9.250</releaseNotes>
+    <version>0.10.421</version>
+    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.10.421</releaseNotes>
     <packageSourceUrl>https://github.com/stackql/chocolatey-install</packageSourceUrl>
     <owners>stackql</owners>
     <title>stackql (Install)</title>
     <authors>stackql</authors>
     <projectUrl>https://stackql.io/</projectUrl>
     <iconUrl>https://rawcdn.githack.com/stackql/stackql.io/c58a82edd5c42244866e01887cc112a2c275a08b/static/android-chrome-192x192.png</iconUrl>
-    <copyright>2024 StackQL Studios</copyright>
+    <copyright>2026 StackQL Studios</copyright>
     <licenseUrl>https://github.com/stackql/stackql/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/stackql/stackql</projectSourceUrl>
