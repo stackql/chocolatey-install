@@ -18,8 +18,8 @@ To bump the version, update the `version` and `releaseNotes` fields in `stackql/
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>stackql</id>
-    <version>0.10.426</version>
-    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.9.250</releaseNotes>
+    <version>0.10.474</version>
+    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.10.474</releaseNotes>
     ...
 ```
 
