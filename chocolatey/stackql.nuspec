@@ -21,7 +21,7 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
     <id>stackql</id>
     <version>0.10.601</version>
     <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.10.601</releaseNotes>
-    <packageSourceUrl>https://github.com/stackql/chocolatey-install</packageSourceUrl>
+    <packageSourceUrl>https://github.com/stackql/stackql-windows-installer</packageSourceUrl>
     <owners>stackql</owners>
     <title>stackql (Install)</title>
     <authors>stackql</authors>

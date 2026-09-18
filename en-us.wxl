@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	<String Id="WelcomeDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="LicenseAgreementDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="BrowseDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="DiskCostDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="InstallDirDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="InvalidDirDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="CancelDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="ErrorDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="ExitDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="ExitDialog_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="FatalError_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="FilesInUse_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="MaintenanceTypeDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="MaintenanceWelcomeDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="MsiRMFilesInUse_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="OutOfDiskDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="OutOfRbDiskDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="PrepareDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="ProgressDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="ResumeDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="UserExit_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="VerifyReadyDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+	<String Id="WaitForCostingDlg_Title">[ProductName] Setup (Version [ProductVersion])</String>
+</WixLocalization>
+

@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<?define Name = "StackQL" ?>
+<?define Description = "Query and Provision Cloud Services using SQL." ?>
+<?define Manufacturer = "StackQL Studios" ?>
+<?define UpgradeCode = "{384B04D5-3235-4D2E-B2FF-1D698B3CB1C7}" ?>
+<?define Comments = "(c) 2020-2025 StackQL Studios.  All rights reserved." ?>
+<?define Company = "StackQL Studios" ?>
+<?define AppName = "StackQL" ?>
+<?define ShellShortcutName = "StackQL Command Shell" ?>
+<?define DesktopShortcutName = "StackQL Shell" ?>
+<?define DesktopShortcutDesc = "StackQL Command Shell for Interacting with Cloud Providers" ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+    
+    <Package Name="$(var.Name) $(env.StackQLBuildVersion)"
+             Language="1033"
+             Version="$(env.StackQLBuildVersion)"
+             Manufacturer="$(var.Manufacturer)"
+             UpgradeCode="$(var.UpgradeCode)"
+             InstallerVersion="301"
+             Compressed="yes"
+             Scope="perMachine">
+
+        <MajorUpgrade Schedule="afterInstallInitialize"
+                     DowngradeErrorMessage="A newer version of [ProductName] is already installed. Setup will now exit." 
+                     AllowSameVersionUpgrades="yes" />
+
+        <MediaTemplate EmbedCab="yes" />
+
+        <!-- Resources -->
+        <Icon Id="stackql.ico" SourceFile="inc\stackql.ico" />
+        <Property Id="ARPPRODUCTICON" Value="stackql.ico" />
+
+        <!-- WiX UI Configuration -->
+        <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="APPLICATIONROOTDIRECTORY" />
+        <WixVariable Id="WixUILicenseRtf" Value="inc\EULA1.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value="inc\stackqlTopBanner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="inc\stackqlSideImage.bmp" />
+
+        <!-- Directory Structure -->
+        <StandardDirectory Id="ProgramFilesFolder">
+            <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.Name)">
+                <Component Id="stackql.exe" Guid="609B7B29-3841-4A95-8E07-B3995617B845">
+                    <File Id="stackql.exe" Source="bin\stackql.exe" KeyPath="yes" Checksum="yes" />
+                </Component>
+                <Component Id="stackql.cmd" Guid="F70B1CAD-C81A-4D03-9917-427FDBD09F05">
+                    <File Id="stackql.cmd" Source="inc\StackQL Command Shell.cmd" KeyPath="yes" Checksum="yes" />
+                </Component>
+            </Directory>
+        </StandardDirectory>
+        
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="$(var.Name)">
+                <Component Id="ApplicationShortcut" Guid="1BAE3C22-EC88-4DBC-BAA6-A505DD760384">
+                    <Shortcut Id="ApplicationStartMenuShortcut"
+                             Name="$(var.ShellShortcutName)"
+                             Description="$(var.Description)"
+                             Target="[#stackql.cmd]"
+                             Icon="stackql.ico"
+                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                    
+                    <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+                    <RegistryValue Root="HKCU" 
+                                 Key="Software\$(var.Company)\$(var.AppName)" 
+                                 Name="Installed" 
+                                 Type="integer" 
+                                 Value="1" 
+                                 KeyPath="yes" />
+                </Component>
+            </Directory>
+        </StandardDirectory>
+        
+        <StandardDirectory Id="DesktopFolder">
+            <Directory Id="MergeRedirectFolder">
+                <Component Id="DesktopShortcut" Guid="38477335-70AC-480E-929E-9398AC49294C">
+                    <RegistryValue Id="RegShortcutDesktop"
+                                 Root="HKCU"
+                                 Key="Software\$(var.Company)\$(var.AppName)"
+                                 Name="InstallDir"
+                                 Value="[APPLICATIONROOTDIRECTORY]"
+                                 Type="string"
+                                 KeyPath="yes" />
+                    <Shortcut Id="desktopSC"
+                             Name="$(var.DesktopShortcutName)"
+                             Description="$(var.DesktopShortcutDesc)"
+                             Target="[#stackql.cmd]"
+                             Icon="stackql.ico"
+                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                    <RemoveFolder Id="MergeRedirectFolder" On="uninstall" />
+                </Component>
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="TARGETDIR">
+            <Component Id="UpdatePath" Guid="44E871D0-D2B7-4450-86D1-0A8399D7E384">
+                <Environment Id="PATH"
+                           Name="PATH"
+                           Value="[APPLICATIONROOTDIRECTORY]"
+                           Permanent="no"
+                           Part="last"
+                           Action="set"
+                           System="yes" />
+            </Component>
+        </StandardDirectory>
+
+        <!-- Features -->
+        <Feature Id="MainApplication" Title="Main Application" Level="1">
+            <ComponentRef Id="stackql.exe" />
+            <ComponentRef Id="stackql.cmd" />
+            <ComponentRef Id="ApplicationShortcut" />
+            <ComponentRef Id="DesktopShortcut" />
+            <ComponentRef Id="UpdatePath" />
+        </Feature>
+
+    </Package>
+</Wix>

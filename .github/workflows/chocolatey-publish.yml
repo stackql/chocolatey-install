@@ -1,37 +1,58 @@
+name: chocolatey-publish
+
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  publish:
     runs-on: windows-latest
-    outputs:
-      version: ${{ steps.set_version.outputs.version }}
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Extract Version from .nuspec
+    - name: Extract version from nuspec
+      id: version
       run: |
-        $xml = [xml](Get-Content stackql/stackql.nuspec)
+        $xml = [xml](Get-Content chocolatey/stackql.nuspec)
         $version = $xml.package.metadata.version
-        echo "Extracted version: $version"
-        echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV
+        Write-Output "Version in nuspec: $version"
+        "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
-    - name: Create Chocolatey Package
+    - name: Check whether the version is already on chocolatey.org
+      id: check
       run: |
-        echo "creating package for version ${{ env.VERSION }}"
-        cd stackql
+        $version = "${{ steps.version.outputs.version }}"
+        $url = "https://community.chocolatey.org/api/v2/Packages(Id='stackql',Version='$version')"
+        $response = Invoke-WebRequest -Uri $url -SkipHttpErrorCheck
+        if ($response.StatusCode -eq 200) {
+          Write-Output "stackql $version already exists on chocolatey.org, nothing to publish"
+          "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        } elseif ($response.StatusCode -eq 404) {
+          Write-Output "stackql $version is not on chocolatey.org, publishing"
+          "publish=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        } else {
+          throw "Unexpected HTTP $($response.StatusCode) from $url"
+        }
+
+    - name: Create Chocolatey package
+      if: steps.check.outputs.publish == 'true'
+      run: |
+        cd chocolatey
         choco pack
 
-    - name: Install and Test Chocolatey Package
-      run: choco install stackql --source . -y
+    - name: Install and test Chocolatey package
+      if: steps.check.outputs.publish == 'true'
+      run: choco install stackql --source "$env:GITHUB_WORKSPACE\chocolatey" -y
 
-    - name: Push Package to Chocolatey
-      run: |
-        choco push "stackql/stackql.${{ env.VERSION }}.nupkg" --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+    - name: Push package to Chocolatey
+      if: steps.check.outputs.publish == 'true'
+      run: choco push "chocolatey/stackql.${{ steps.version.outputs.version }}.nupkg" --source https://push.chocolatey.org/ --api-key $env:CHOCOLATEY_API_KEY
       env:
         CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
-  
