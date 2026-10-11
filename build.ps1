@@ -68,6 +68,7 @@ foreach ($architecture in $architectures) {
 }
 
 # Read the shared version from a copy so resource editing never touches a just-run EXE.
+Write-Banner "Reading shared StackQL version"
 Copy-Item -LiteralPath .\bin\amd64\stackql.exe -Destination .\bin\stackql-version.exe
 $VersionOutput = & .\bin\stackql-version.exe --version
 if ($LASTEXITCODE -ne 0) { throw "Reading StackQL version failed (exit $LASTEXITCODE)" }
@@ -80,9 +81,6 @@ $env:StackQLBuildVersion = $Version
 
 foreach ($architecture in $architectures) {
     $exePath = ".\bin\$architecture\stackql.exe"
-    $msiPath = ".\msi\stackql_${Version}_windows_${architecture}.msi"
-    $zipPath = ".\msi\stackql_${Version}_windows_${architecture}.zip"
-    $wixArchitecture = if ($architecture -eq 'amd64') { 'x64' } else { 'arm64' }
 
     Write-Banner "Versioning $architecture EXE: $Version"
     .\lib\rcedit-x86.exe $exePath `
@@ -93,12 +91,22 @@ foreach ($architecture in $architectures) {
         --set-version-string "LegalCopyright" $LegalCopyright `
         --set-icon $IconPath
     if ($LASTEXITCODE -ne 0) { throw "Versioning $architecture EXE failed (exit $LASTEXITCODE)" }
+}
 
-    if ($sign) {
+if ($sign) {
+    foreach ($architecture in $architectures) {
+        $exePath = ".\bin\$architecture\stackql.exe"
         Write-Banner "Signing $architecture EXE"
         .\lib\signtool sign /tr http://timestamp.comodoca.com /td sha256 /fd sha256 /n StackQL $exePath
         if ($LASTEXITCODE -ne 0) { throw "Signing $architecture EXE failed (exit $LASTEXITCODE)" }
     }
+}
+
+foreach ($architecture in $architectures) {
+    $exePath = ".\bin\$architecture\stackql.exe"
+    $msiPath = ".\msi\stackql_${Version}_windows_${architecture}.msi"
+    $zipPath = ".\msi\stackql_${Version}_windows_${architecture}.zip"
+    $wixArchitecture = if ($architecture -eq 'amd64') { 'x64' } else { 'arm64' }
 
     Write-Banner "Building $architecture MSI"
     wix.exe build .\stackql.wxs -arch $wixArchitecture -d "BinaryPath=$exePath" -ext WixToolset.UI.wixext -o $msiPath

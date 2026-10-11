@@ -37,9 +37,9 @@ Save both unsigned Windows builds for the release as `downloaded\stackql_windows
 .\build.ps1 true
 ```
 
-Insert the hardware token before running. The script pauses so you can confirm the token is inserted, then prompts for the token password when signing the EXE and again when signing the MSI. Enter the password carefully: the token is locked out after more than 3 incorrect attempts.
+Insert the hardware token before running. The script pauses so you can confirm the token is inserted, then makes four separate signing calls in this order: AMD64 EXE, ARM64 EXE, AMD64 MSI, ARM64 MSI. Expect one token password prompt per call when password caching or single logon is disabled in the token client; the client controls the prompts. See [SafeNet single logon settings](https://www.sectigo.com/knowledge-base/detail/enable-safenet-single-log-on-for-document-or-code-signing). Enter the password carefully: the token is locked out after more than 3 incorrect attempts.
 
-The script expands each ZIP into `bin\<architecture>\`, reads the shared version from the AMD64 executable, stamps and signs both executables, then builds and signs each native MSI. It writes the outputs to `msi\`:
+The script extracts both ZIPs into `bin\<architecture>\`, reads the shared version from the AMD64 executable, and stamps both executables before signing either. It then signs both EXEs, builds and signs the AMD64 MSI, creates the AMD64 ZIP, builds and signs the ARM64 MSI, and creates the ARM64 ZIP. It writes the outputs to `msi\`:
 
 - `stackql_<version>_windows_amd64.msi` and `stackql_windows_amd64.msi`
 - `stackql_<version>_windows_amd64.zip` and `stackql_windows_amd64.zip`
