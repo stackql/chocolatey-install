@@ -31,20 +31,47 @@ jobs:
         }
         exit 0
 
-    - name: Check version and query
+    - name: Check EXE signature, file version and query
       run: |
         $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + $env:Path
-        stackql --version
+        $exePath = (Get-Command stackql.exe -CommandType Application -ErrorAction Stop).Source
+        Write-Output "StackQL executable: $exePath"
+
+        $signature = Get-AuthenticodeSignature -LiteralPath $exePath -ErrorAction Stop
+        if ($signature.Status -ne 'Valid') {
+          throw "StackQL EXE Authenticode signature is '$($signature.Status)': $($signature.StatusMessage)"
+        }
+        Write-Output "StackQL EXE signed by: $($signature.SignerCertificate.Subject)"
+
+        $versionOutput = & $exePath --version
         if ($LASTEXITCODE -ne 0) {
           throw "StackQL version check failed with exit code $LASTEXITCODE"
         }
+        Write-Output $versionOutput
+        if (($versionOutput -join "`n") -notmatch '(?m)^stackql v(\d+\.\d+\.\d+)(?=\s|$)') {
+          throw 'Could not read the StackQL version'
+        }
+        $version = $Matches[1]
 
-        $output = stackql exec "SELECT 1 as test" --output json
+        $fileVersion = ([string](Get-Item -LiteralPath $exePath -ErrorAction Stop).VersionInfo.FileVersion).Trim()
+        Write-Output "StackQL EXE Windows file version: $fileVersion"
+        if ($fileVersion -match '^(\d+\.\d+\.\d+)\.0$') {
+          $fileVersion = $Matches[1]
+        }
+        if ($fileVersion -ne $version) {
+          throw "StackQL EXE file version '$fileVersion' does not match CLI version '$version'"
+        }
+
+        $output = & $exePath exec "SELECT 1 as test" --output json
         if ($LASTEXITCODE -ne 0) {
           throw "StackQL query failed with exit code $LASTEXITCODE"
         }
         Write-Output $output
         $rows = @(($output -join "`n") | ConvertFrom-Json)
-        if ($rows.Count -ne 1 -or $rows[0].test -ne 1) {
+        $testValue = $rows[0].test
+        if ($testValue.Valid -eq $true) {
+          $testValue = $testValue.String
+        }
+        if ($rows.Count -ne 1 -or $testValue -ne 1) {
           throw 'Expected one row with test = 1'
         }

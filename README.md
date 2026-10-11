@@ -95,7 +95,9 @@ The workflow can also be started by hand from the Actions tab.
 
 ## Smoke testing the published Chocolatey package
 
-In GitHub Actions, select [chocolatey-smoke](.github/workflows/chocolatey-smoke.yml) and choose **Run workflow**. It installs the latest stable `stackql` package from the Chocolatey community feed on x64 (`windows-latest`) and ARM64 (`windows-11-arm`) runners. Each job prints `stackql --version`, runs `SELECT 1 as test`, and checks that the result is one row with `test = 1`.
+In GitHub Actions, select [chocolatey-smoke](.github/workflows/chocolatey-smoke.yml) and choose **Run workflow**. It installs the latest stable `stackql` package from the Chocolatey community feed on x64 (`windows-latest`) and ARM64 (`windows-11-arm`) runners. Each job requires a valid Authenticode signature on the installed `stackql.exe`, prints its signer and `stackql --version`, and checks that its Windows file version matches the CLI version (allowing a trailing `.0`). It then runs `SELECT 1 as test` and checks that the result is one row with `test = 1`.
+
+Chocolatey's install helper verifies the configured MSI SHA256 checksum but does not enforce Authenticode signature validity. `release.ps1` checks both MSI and EXE signatures before upload unless `-AllowUnsigned` is passed; the smoke test checks the installed EXE signature explicitly.
 
 ## Building and testing the Chocolatey package locally
 
