@@ -2,9 +2,9 @@
 
 Builds, releases and publishes the StackQL packages for Windows:
 
-- `stackql_windows_amd64.msi` - Authenticode signed MSI installer
-- `stackql_windows_amd64.zip` - ZIP containing the signed `stackql.exe`
-- the `stackql` Chocolatey package, which installs the MSI from the releases proxy
+- `stackql_windows_amd64.msi` and `stackql_windows_arm64.msi` - Authenticode signed MSI installers
+- `stackql_windows_amd64.zip` and `stackql_windows_arm64.zip` - ZIPs containing the signed `stackql.exe`
+- the `stackql` Chocolatey package, which selects the native AMD64 or ARM64 MSI from the releases proxy
 
 This repo replaces the former `stackql-msi` and `chocolatey-install` repos.
 
@@ -19,17 +19,17 @@ This repo replaces the former `stackql-msi` and `chocolatey-install` repos.
 Two things to be aware of when building:
 
 - File versioning does not work if this repo lives in a synced folder (Dropbox, OneDrive and similar)
-- AV scanning needs to be suspended temporarily while building
+- McAfee AV must be temporarily disabled for version stamping
 
 ## Release flow
 
-The overall StackQL release is driven from the [stackql](https://github.com/stackql/stackql) repo: a tag is pushed, a GitHub release is created, and the signed platform packages are added to that release as assets. Downloads are served through the releases proxy at `releases.stackql.io`, which is where the Chocolatey package pulls the MSI from.
+The overall StackQL release is driven from the [stackql](https://github.com/stackql/stackql) repo: a tag is pushed, a GitHub release is created, and the signed platform packages are added to that release as assets. After package UAT, release availability is gated by moving the Cloudflare releases proxy semver pointer to the next release. GitHub draft releases are not used. All published release/download links and script download URLs use `releases.stackql.io`.
 
 The Windows part of that flow is the steps below. Run each script from the root of this repo.
 
 ### Before you start
 
-Save the unsigned Windows build for the release as `downloaded\stackql_windows_amd64.zip`. The `downloaded`, `bin` and `msi` directories are gitignored.
+Save both unsigned Windows builds for the release as `downloaded\stackql_windows_amd64.zip` and `downloaded\stackql_windows_arm64.zip`. Both must be from the same release build. The `downloaded`, `bin` and `msi` directories are gitignored.
 
 ### Step 1: build and sign the MSI and ZIP
 
@@ -39,10 +39,12 @@ Save the unsigned Windows build for the release as `downloaded\stackql_windows_a
 
 Insert the hardware token before running. The script pauses so you can confirm the token is inserted, then prompts for the token password when signing the EXE and again when signing the MSI. Enter the password carefully: the token is locked out after more than 3 incorrect attempts.
 
-The script expands the downloaded ZIP into `bin\`, stamps the version and file properties onto `stackql.exe`, signs it, builds and signs the MSI, then writes the outputs to `msi\`:
+The script expands each ZIP into `bin\<architecture>\`, reads the shared version from the AMD64 executable, stamps and signs both executables, then builds and signs each native MSI. It writes the outputs to `msi\`:
 
 - `stackql_<version>_windows_amd64.msi` and `stackql_windows_amd64.msi`
 - `stackql_<version>_windows_amd64.zip` and `stackql_windows_amd64.zip`
+- `stackql_<version>_windows_arm64.msi` and `stackql_windows_arm64.msi`
+- `stackql_<version>_windows_arm64.zip` and `stackql_windows_arm64.zip`
 
 Running `.\build.ps1` without `true` produces unsigned packages. These are fine for local testing but `release.ps1` will refuse to upload them.
 
@@ -52,22 +54,26 @@ Running `.\build.ps1` without `true` produces unsigned packages. These are fine 
 .\release.ps1
 ```
 
-The script reads the `ProductVersion` from `msi\stackql_windows_amd64.msi` and the file version of the `stackql.exe` inside `msi\stackql_windows_amd64.zip` (nothing is installed), checks that both match and are validly signed, then uploads both files as assets to the `stackql/stackql` release tagged `v<version>`. The release must already exist.
+The script reads each MSI's `ProductVersion` and the file version of `stackql.exe` inside each ZIP (nothing is installed), checks that all versions match and all signatures are valid, then uploads the four unversioned filenames as assets to the `stackql/stackql` release tagged `v<version>`. The release must already exist. Uploading does not move the releases proxy semver pointer; promotion follows the separate package UAT process.
 
 Existing assets are never overwritten. If an asset with the same name is already on the release it is skipped with a warning. To replace an asset, delete it from the release on GitHub first and run the script again. Pass `-AllowUnsigned` to upload unsigned packages.
 
 ### Step 3: prepare the Chocolatey package
 
-Wait until the releases proxy is serving the new MSI at `https://releases.stackql.io/stackql/latest/stackql_windows_amd64.msi`, then run:
+After moving the releases proxy semver pointer to the approved release, wait until the proxy serves both MSIs at `https://releases.stackql.io/stackql/<version>/stackql_windows_<architecture>.msi` (`amd64` and `arm64`), then run:
 
 ```powershell
 .\publish-prep.ps1 0.11.669
 ```
 
-The version can be given with or without the leading `v`. The script downloads the latest MSI from the proxy, confirms that its `ProductVersion` matches the version given (nothing is installed) and fails if it does not. It then updates:
+The version can be given with or without the leading `v`. The script downloads both MSIs from version-specific proxy URLs and confirms that each `ProductVersion` matches the version given (nothing is installed). If either download or version check fails, package files remain unchanged. It then updates:
 
-- `chocolatey\tools\chocolateyinstall.ps1` - `checksum64` is set to the SHA256 of the downloaded MSI
+- `chocolatey\tools\chocolateyinstall.ps1` - AMD64 and ARM64 URLs and SHA256 checksums
 - `chocolatey\stackql.nuspec` - `version` and `releaseNotes` are set for the release
+
+Users run `choco install stackql` on either architecture. The install script detects the native platform even when PowerShell runs under emulation, then downloads the matching MSI with its SHA256 checksum. Unsupported architectures are rejected. Downloads stay pinned to the package version.
+
+Run `publish-prep.ps1` for the first release containing both architectures before publishing the updated Chocolatey package; it fills the ARM64 URL and checksum.
 
 ### Step 4: publish to Chocolatey
 
@@ -86,6 +92,10 @@ The push triggers the [chocolatey-publish](.github/workflows/chocolatey-publish.
 3. runs `choco pack`, test installs the package on the runner, then pushes it to chocolatey.org using the `CHOCOLATEY_API_KEY` repository secret
 
 The workflow can also be started by hand from the Actions tab.
+
+## Smoke testing the published Chocolatey package
+
+In GitHub Actions, select [chocolatey-smoke](.github/workflows/chocolatey-smoke.yml) and choose **Run workflow**. It installs the latest stable `stackql` package from the Chocolatey community feed on x64 (`windows-latest`) and ARM64 (`windows-11-arm`) runners. Each job prints `stackql --version`, runs `SELECT 1 as test`, and checks that the result is one row with `test = 1`.
 
 ## Building and testing the Chocolatey package locally
 
@@ -110,4 +120,5 @@ choco uninstall stackql
 | `lib\` | Build tools: `rcedit` (version stamping) and `signtool` (Authenticode signing) |
 | `chocolatey\` | Chocolatey package source: `stackql.nuspec` and `tools\` |
 | `.github\workflows\chocolatey-publish.yml` | Publishes the Chocolatey package on push to `main` |
+| `.github\workflows\chocolatey-smoke.yml` | Manually smoke tests the latest Chocolatey package on x64 and ARM64 |
 | `downloaded\`, `bin\`, `msi\` | Gitignored build input and outputs |

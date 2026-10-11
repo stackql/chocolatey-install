@@ -2,17 +2,16 @@
 #
 # Step 2 of the Windows release flow (run after build.ps1, from the root of this repo).
 #
-# Reads the version embedded in msi\stackql_windows_amd64.msi and in the
-# stackql.exe inside msi\stackql_windows_amd64.zip (nothing is installed),
-# checks that both carry the same version and are validly signed, then uploads
-# both files as assets to the stackql/stackql GitHub release tagged v<version>.
+# Checks versions and signatures in the AMD64 and ARM64 MSI/ZIP pairs,
+# then uploads all four assets to the existing v<version> release.
+# Nothing is installed, and the releases proxy semver pointer is not moved.
 #
 # Existing release assets are never overwritten. If an asset with the same name
 # is already on the release it is skipped. To replace it, delete it from the
 # release manually and run this script again.
 #
 # Requirements:
-#   - build.ps1 has been run (msi\stackql_windows_amd64.msi and .zip exist)
+#   - build.ps1 has been run (AMD64 and ARM64 MSI/ZIP pairs exist in msi\)
 #   - the GitHub release v<version> already exists in stackql/stackql
 #   - gh CLI installed and authenticated (gh auth login)
 #
@@ -28,8 +27,14 @@ $ErrorActionPreference = 'Stop'
 
 $org = "stackql"
 $repo = "stackql"
-$msiPath = Join-Path $PSScriptRoot "msi\stackql_windows_amd64.msi"
-$zipPath = Join-Path $PSScriptRoot "msi\stackql_windows_amd64.zip"
+$packages = foreach ($architecture in @('amd64', 'arm64')) {
+    [pscustomobject]@{
+        Architecture = $architecture
+        MsiPath = Join-Path $PSScriptRoot "msi\stackql_windows_${architecture}.msi"
+        ZipPath = Join-Path $PSScriptRoot "msi\stackql_windows_${architecture}.zip"
+    }
+}
+$files = foreach ($package in $packages) { $package.MsiPath; $package.ZipPath }
 
 function Write-Banner([string]$Message) {
     Write-Host "*******************************************************************************"
@@ -104,7 +109,7 @@ function Test-Signature([string]$Label, $Signature) {
 
 Write-Banner "Checking build outputs"
 
-foreach ($file in @($msiPath, $zipPath)) {
+foreach ($file in $files) {
     if (-not (Test-Path $file)) {
         throw "Not found: $file (run build.ps1 first)"
     }
@@ -114,28 +119,36 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     throw "gh CLI not found. Install it from https://cli.github.com/ and run 'gh auth login'."
 }
 
-Write-Banner "Reading versions (nothing is installed)"
+Write-Banner "Checking versions and signatures (nothing is installed)"
 
-$msiVersion = Get-MsiProductVersion $msiPath
-Write-Host "MSI ProductVersion      : $msiVersion"
-$zipInfo = Get-ZipExeInfo $zipPath
-Write-Host "ZIP stackql.exe version : $($zipInfo.Version)"
+$version = $null
+$allSigned = $true
+foreach ($package in $packages) {
+    $architecture = $package.Architecture
+    $msiVersion = Get-MsiProductVersion $package.MsiPath
+    $zipInfo = Get-ZipExeInfo $package.ZipPath
+    Write-Host "$architecture MSI ProductVersion      : $msiVersion"
+    Write-Host "$architecture ZIP stackql.exe version : $($zipInfo.Version)"
 
-if ($msiVersion -notmatch '^\d+\.\d+\.\d+$') {
-    throw "Unexpected MSI ProductVersion '$msiVersion' (expected major.minor.patch)"
+    if ($msiVersion -notmatch '^\d+\.\d+\.\d+$') {
+        throw "Unexpected $architecture MSI ProductVersion '$msiVersion' (expected major.minor.patch)"
+    }
+    if ($msiVersion -ne $zipInfo.Version) {
+        throw "Version mismatch: the $architecture MSI is $msiVersion but the ZIP contains stackql.exe $($zipInfo.Version). Re-run build.ps1."
+    }
+    if ($null -ne $version -and $msiVersion -ne $version) {
+        throw "Version mismatch between architectures: expected $version but $architecture is $msiVersion. Re-run build.ps1."
+    }
+    $version = $msiVersion
+
+    $msiSigned = Test-Signature "$architecture MSI" (Get-AuthenticodeSignature $package.MsiPath)
+    $exeSigned = Test-Signature "$architecture ZIP stackql.exe" $zipInfo.Signature
+    if (-not ($msiSigned -and $exeSigned)) { $allSigned = $false }
 }
-if ($msiVersion -ne $zipInfo.Version) {
-    throw "Version mismatch: the MSI is $msiVersion but the ZIP contains stackql.exe $($zipInfo.Version). Re-run build.ps1."
-}
-$version = $msiVersion
 $tag = "v$version"
 Write-Host "Release tag             : $tag"
 
-Write-Banner "Checking signatures"
-
-$msiSigned = Test-Signature "MSI" (Get-AuthenticodeSignature $msiPath)
-$exeSigned = Test-Signature "ZIP stackql.exe" $zipInfo.Signature
-if (-not ($msiSigned -and $exeSigned)) {
+if (-not $allSigned) {
     if ($AllowUnsigned) {
         Write-Warning "Continuing with unsigned files because -AllowUnsigned was specified"
     } else {
@@ -145,20 +158,20 @@ if (-not ($msiSigned -and $exeSigned)) {
 
 Write-Banner "Checking release $tag in ${org}/${repo}"
 
-$releaseJson = gh release view $tag --repo "${org}/${repo}" --json tagName,url,assets
+$releaseJson = gh release view $tag --repo "${org}/${repo}" --json tagName,assets
 if ($LASTEXITCODE -ne 0) {
     throw "Release $tag was not found in ${org}/${repo}. Create the release first, then re-run this script."
 }
 $release = ($releaseJson -join "") | ConvertFrom-Json
 $existing = @($release.assets | ForEach-Object { $_.name })
-Write-Host "Release URL     : $($release.url)"
+Write-Host "Release tag     : $tag"
 Write-Host "Existing assets : $(if ($existing.Count -gt 0) { $existing -join ', ' } else { '(none)' })"
 
 Write-Banner "Uploading assets"
 
 $uploaded = @()
 $skipped = @()
-foreach ($file in @($msiPath, $zipPath)) {
+foreach ($file in $files) {
     $name = Split-Path $file -Leaf
     if ($existing -contains $name) {
         Write-Warning "$name already exists on release $tag and will not be overwritten. Delete it from the release manually if it needs to be replaced."
@@ -175,6 +188,6 @@ foreach ($file in @($msiPath, $zipPath)) {
 
 Write-Banner "Summary"
 
-Write-Host "Release  : $($release.url)"
+Write-Host "Release  : $tag"
 Write-Host "Uploaded : $(if ($uploaded.Count -gt 0) { $uploaded -join ', ' } else { '(none)' })"
 Write-Host "Skipped  : $(if ($skipped.Count -gt 0) { $skipped -join ', ' } else { '(none)' })"

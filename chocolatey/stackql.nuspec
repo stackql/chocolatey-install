@@ -20,7 +20,7 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
   <metadata>
     <id>stackql</id>
     <version>0.12.732</version>
-    <releaseNotes>https://github.com/stackql/stackql/releases/tag/v0.12.732</releaseNotes>
+    <releaseNotes>StackQL v0.12.732 Windows release.</releaseNotes>
     <packageSourceUrl>https://github.com/stackql/stackql-windows-installer</packageSourceUrl>
     <owners>stackql</owners>
     <title>stackql (Install)</title>

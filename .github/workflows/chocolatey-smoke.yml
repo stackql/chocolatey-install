@@ -1,0 +1,50 @@
+name: chocolatey-smoke
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  smoke:
+    name: Smoke test (${{ matrix.architecture }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: x64
+            runner: windows-latest
+          - architecture: arm64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - name: Install latest StackQL from Chocolatey
+      run: |
+        choco install stackql --source https://community.chocolatey.org/api/v2/ --yes --no-progress
+        if ($LASTEXITCODE -notin @(0, 3010, 1641)) {
+          throw "Chocolatey install failed with exit code $LASTEXITCODE"
+        }
+        exit 0
+
+    - name: Check version and query
+      run: |
+        $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + $env:Path
+        stackql --version
+        if ($LASTEXITCODE -ne 0) {
+          throw "StackQL version check failed with exit code $LASTEXITCODE"
+        }
+
+        $output = stackql exec "SELECT 1 as test" --output json
+        if ($LASTEXITCODE -ne 0) {
+          throw "StackQL query failed with exit code $LASTEXITCODE"
+        }
+        Write-Output $output
+        $rows = @(($output -join "`n") | ConvertFrom-Json)
+        if ($rows.Count -ne 1 -or $rows[0].test -ne 1) {
+          throw 'Expected one row with test = 1'
+        }

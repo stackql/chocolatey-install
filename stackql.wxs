@@ -11,6 +11,20 @@
 <?define DesktopShortcutName = "StackQL Shell" ?>
 <?define DesktopShortcutDesc = "StackQL Command Shell for Interacting with Cloud Providers" ?>
 
+<?if $(sys.BUILDARCH) = "arm64" ?>
+    <?define ExeGuid = "CEC8A642-FC2C-472F-9276-1FE3991535F7" ?>
+    <?define CmdGuid = "85AA6CC2-B54B-4E0E-8A20-D9C50325823F" ?>
+    <?define StartMenuGuid = "3DD2285A-1C68-47F6-BAA8-0514EC745947" ?>
+    <?define DesktopGuid = "C20EBC16-A49A-46D2-90C2-6A7EFC54CCDD" ?>
+    <?define PathGuid = "DCB7D146-5893-4714-BDEF-799B5AB89587" ?>
+<?else?>
+    <?define ExeGuid = "70D4E41A-B897-4974-883C-BC9EF7154953" ?>
+    <?define CmdGuid = "1C33A770-808B-46F8-A2EA-19F32AACD225" ?>
+    <?define StartMenuGuid = "BC1FDF0D-51DD-478E-9C21-6D23438C8F1E" ?>
+    <?define DesktopGuid = "4B2E3D6F-8CDF-4B7B-8CFA-A403A3F2E72C" ?>
+    <?define PathGuid = "E7D9A2E7-3F4D-47C6-9B7F-4EFBE2116778" ?>
+<?endif?>
+
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
     
@@ -19,7 +33,7 @@
              Version="$(env.StackQLBuildVersion)"
              Manufacturer="$(var.Manufacturer)"
              UpgradeCode="$(var.UpgradeCode)"
-             InstallerVersion="301"
+             InstallerVersion="500"
              Compressed="yes"
              Scope="perMachine">
 
@@ -40,12 +54,12 @@
         <WixVariable Id="WixUIDialogBmp" Value="inc\stackqlSideImage.bmp" />
 
         <!-- Directory Structure -->
-        <StandardDirectory Id="ProgramFilesFolder">
+        <StandardDirectory Id="ProgramFiles64Folder">
             <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.Name)">
-                <Component Id="stackql.exe" Guid="609B7B29-3841-4A95-8E07-B3995617B845">
-                    <File Id="stackql.exe" Source="bin\stackql.exe" KeyPath="yes" Checksum="yes" />
+                <Component Id="stackql.exe" Guid="$(var.ExeGuid)">
+                    <File Id="stackql.exe" Source="$(var.BinaryPath)" KeyPath="yes" Checksum="yes" />
                 </Component>
-                <Component Id="stackql.cmd" Guid="F70B1CAD-C81A-4D03-9917-427FDBD09F05">
+                <Component Id="stackql.cmd" Guid="$(var.CmdGuid)">
                     <File Id="stackql.cmd" Source="inc\StackQL Command Shell.cmd" KeyPath="yes" Checksum="yes" />
                 </Component>
             </Directory>
@@ -53,7 +67,7 @@
         
         <StandardDirectory Id="ProgramMenuFolder">
             <Directory Id="ApplicationProgramsFolder" Name="$(var.Name)">
-                <Component Id="ApplicationShortcut" Guid="1BAE3C22-EC88-4DBC-BAA6-A505DD760384">
+                <Component Id="ApplicationShortcut" Guid="$(var.StartMenuGuid)">
                     <Shortcut Id="ApplicationStartMenuShortcut"
                              Name="$(var.ShellShortcutName)"
                              Description="$(var.Description)"
@@ -74,7 +88,7 @@
         
         <StandardDirectory Id="DesktopFolder">
             <Directory Id="MergeRedirectFolder">
-                <Component Id="DesktopShortcut" Guid="38477335-70AC-480E-929E-9398AC49294C">
+                <Component Id="DesktopShortcut" Guid="$(var.DesktopGuid)">
                     <RegistryValue Id="RegShortcutDesktop"
                                  Root="HKCU"
                                  Key="Software\$(var.Company)\$(var.AppName)"
@@ -94,7 +108,7 @@
         </StandardDirectory>
 
         <StandardDirectory Id="TARGETDIR">
-            <Component Id="UpdatePath" Guid="44E871D0-D2B7-4450-86D1-0A8399D7E384">
+            <Component Id="UpdatePath" Guid="$(var.PathGuid)">
                 <Environment Id="PATH"
                            Name="PATH"
                            Value="[APPLICATIONROOTDIRECTORY]"
